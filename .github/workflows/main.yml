@@ -1,0 +1,23 @@
+on:
+  push:
+    tags: [ "*.*.*" ]
+env:
+  registry: ghcr.io
+  tag: ${{ github.ref_name }}
+  username: kirillsmirnow
+  password: ${{ secrets.GITHUB_TOKEN }}
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 21
+      - uses: actions/checkout@v2
+      - run: ./mvnw package
+      - run: |
+          export image="$registry/$username/msa-demo/names"
+          docker build -t $image:$tag --build-arg folder=msa-demo-names/target .
+          echo "$password" | docker login $registry -u $username --password-stdin
+          docker push $image:$tag
