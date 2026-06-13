@@ -1,0 +1,42 @@
+<html lang="en">
+<head>
+    <title>Hello Service</title>
+    <style>
+        * {
+            margin: 2px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <form onsubmit="sayHello(); return false">
+        <label for="name">Enter your name:</label><br/>
+        <input id="name" type="text"><br/>
+        <input type="submit"><br/>
+    </form>
+</div>
+<div id="reply"></div>
+<script>
+    function sayHello() {
+        fetch('/hello', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: document.getElementById('name').value || 'stranger',
+            })
+        })
+            .then(response => response.json())
+            .then(result => {
+                console.log(result)
+                document.getElementById("reply").textContent = result.message || JSON.stringify(result)
+            })
+            .catch(error => {
+                console.error(error)
+                document.getElementById("reply").textContent = error
+            });
+    }
+</script>
+</body>
+</html>
