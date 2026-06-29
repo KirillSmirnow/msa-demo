@@ -8,9 +8,11 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.InetAddress;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,9 +26,9 @@ public class HelloController {
 
     @PostMapping("/hello")
     @SneakyThrows
-    public HelloResponse sayHello(@RequestBody HelloRequest request) {
+    public HelloResponse sayHello(@RequestBody HelloRequest request, @RequestHeader Map<String, String> headers) {
         var name = request.getName();
-        var normalizedName = normalizeName(name);
+        var normalizedName = normalizeName(name, headers);
         var localHostAddress = InetAddress.getLocalHost();
         var myIpAddress = ipAddressClient.getMyIpAddress();
         return HelloResponse.builder()
@@ -34,7 +36,8 @@ public class HelloController {
                 .build();
     }
 
-    private String normalizeName(String name) {
-        return namesClient.normalizeName(NameNormalizationRequest.builder().originalName(name).build()).getNormalizedName();
+    private String normalizeName(String name, Map<String, String> headers) {
+        var dest = headers.get("dest");
+        return namesClient.normalizeName(NameNormalizationRequest.builder().originalName(name).build(), dest).getNormalizedName();
     }
 }
