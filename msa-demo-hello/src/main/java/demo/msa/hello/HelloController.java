@@ -5,6 +5,7 @@ import demo.msa.hello.client.NameNormalizationRequest;
 import demo.msa.hello.client.NamesClient;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,6 +19,9 @@ public class HelloController {
     private final NamesClient namesClient;
     private final IpAddressClient ipAddressClient;
 
+    @Value("${feature:none}")
+    private String feature;
+
     @PostMapping("/hello")
     @SneakyThrows
     public HelloResponse sayHello(@RequestBody HelloRequest request) {
@@ -26,7 +30,7 @@ public class HelloController {
         var localHostAddress = InetAddress.getLocalHost();
         var myIpAddress = ipAddressClient.getMyIpAddress();
         return HelloResponse.builder()
-                .message("Hello to %s from %s at %s 👋".formatted(normalizedName, localHostAddress, myIpAddress))
+                .message("Hello to %s from %s at %s [%s] 👋".formatted(normalizedName, localHostAddress, myIpAddress, feature))
                 .build();
     }
 
